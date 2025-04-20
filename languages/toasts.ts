@@ -1,0 +1,32 @@
+export const toastsTranslations = {
+  en: {
+    error: "Error",
+    success: "Success",
+    pasteUrl: "Paste your URL in the input field",
+    failedToShortenLink: "Failed to shorten the link",
+    copied: "Copied",
+    linkCopied: "Link copied to clipboard",
+    passwordDidntMatch: "Passwords didn't match",
+    loginToAccount: "Login to your account",
+    userAlreadyExists: "User already exists",
+    allFieldsRequired: "All fields are required",
+    failedToCreateAccount: "Failed to create account",
+    failedToLogin: "Failed to login",
+    invalidCredentials: "Invalid credentials",
+  },
+  tr: {
+    error: "Hata",
+    success: "Başarılı",
+    pasteUrl: "Lütfen URL'yi yapıştırın",
+    failedToShortenLink: "Bağlantı kısaltılamadı",
+    copied: "Kopyalandı",
+    linkCopied: "Bağlantı panoya kopyalandı",
+    passwordDidntMatch: "Şifreler uyuşmuyor",
+    loginToAccount: "Hesabınıza giriş yapın",
+    userAlreadyExists: "Kullanıcı zaten mevcut",
+    allFieldsRequired: "Tüm alanlar zorunludur",
+    failedToCreateAccount: "Hesap oluşturulamadı",
+    failedToLogin: "Giriş yapılamadı",
+    invalidCredentials: "Geçersiz kimlik bilgileri",
+  }
+}
