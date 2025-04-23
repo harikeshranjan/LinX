@@ -13,6 +13,10 @@ export const toastsTranslations = {
     failedToCreateAccount: "Failed to create account",
     failedToLogin: "Failed to login",
     invalidCredentials: "Invalid credentials",
+    enterAllFields: "Please enter all fields",
+    linkShortened: "Link shortened successfully",
+    unauthorized: "Unauthorized! Please login to your account",
+    failedToFetchLinks: "Failed to fetch links",
   },
   tr: {
     error: "Hata",
@@ -28,5 +32,9 @@ export const toastsTranslations = {
     failedToCreateAccount: "Hesap oluşturulamadı",
     failedToLogin: "Giriş yapılamadı",
     invalidCredentials: "Geçersiz kimlik bilgileri",
+    enterAllFields: "Lütfen tüm alanları doldurun",
+    linkShortened: "Bağlantı başarıyla kısaltıldı",
+    unauthorized: "Yetkisiz! Lütfen hesabınıza giriş yapın",
+    failedToFetchLinks: "Bağlantılar alınamadı",
   }
 }

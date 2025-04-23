@@ -45,8 +45,8 @@ export default function Navbar() {
         </li>
       </ul>
 
-      <div className="flex items-center space-x-3 md:space-x-4">
-        <div className="hidden md:flex space-x-3 items-center">
+      <div className="hidden md:flex items-center space-x-3 md:space-x-4">
+        <div className="flex space-x-3 items-center">
           <LanguageToggle />
           <ModeToggle />
         </div>
