@@ -17,6 +17,10 @@ export const toastsTranslations = {
     linkShortened: "Link shortened successfully",
     unauthorized: "Unauthorized! Please login to your account",
     failedToFetchLinks: "Failed to fetch links",
+    failedToFetchLinkCount: "Failed to fetch link count",
+    failedToFetchClickCount: "Failed to fetch click count",
+    failedToFetchAverageClickCount: "Failed to fetch average click count",
+    failedToFetchLastLinkCreated: "Failed to fetch last link created",
   },
   tr: {
     error: "Hata",
@@ -36,5 +40,9 @@ export const toastsTranslations = {
     linkShortened: "Bağlantı başarıyla kısaltıldı",
     unauthorized: "Yetkisiz! Lütfen hesabınıza giriş yapın",
     failedToFetchLinks: "Bağlantılar alınamadı",
+    failedToFetchLinkCount: "Bağlantı sayısı alınamadı",
+    failedToFetchClickCount: "Tıklama sayısı alınamadı",
+    failedToFetchAverageClickCount: "Ortalama tıklama sayısı alınamadı",
+    failedToFetchLastLinkCreated: "Son bağlantı alınamadı",
   }
 }

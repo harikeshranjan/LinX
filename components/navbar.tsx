@@ -19,7 +19,7 @@ export default function Navbar() {
   const router = useRouter();
 
   return (
-    <nav className="fixed md:top-5 flex w-full md:w-[90vw] lg:w-[80vw] xl:w-[75vw] justify-between left-1/2 transform -translate-x-1/2 md:rounded-full py-2 px-6 md:px-10 bg-primary-foreground/30 shadow-md backdrop-blur-xl z-50 border border-border/90">
+    <nav className="fixed top-0 md:top-5 flex w-full md:w-[90vw] lg:w-[80vw] xl:w-[75vw] justify-between left-1/2 transform -translate-x-1/2 md:rounded-full py-2 px-6 md:px-10 bg-primary-foreground/30 shadow-md backdrop-blur-xl z-50 border border-border/90">
       <Link href="/" className="flex items-center">
         <h1 className="text-3xl md:text-3xl font-bold tracking-tight transition-colors duration-200 hover:opacity-80">
           Lin<span className="text-blue-500">X</span>
@@ -111,10 +111,15 @@ export default function Navbar() {
 
                         <div className="space-y-2">
                           <h4 className="text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">{translate.actionButtons}</h4>
-                          <Link href="/logout" className="flex items-center space-x-3 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-red-500 dark:text-red-400 transition duration-150">
+                          <Button
+                            variant={"ghost"}
+                            className="w-full flex justify-start items-center space-x-1 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-red-500 dark:text-red-400 transition duration-150 cursor-pointer"
+                            onClick={() => signOut()}
+                            aria-label="Logout"
+                          >
                             <LogOut className="w-4 h-4" />
                             <span className="text-sm font-medium">Logout</span>
-                          </Link>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -147,48 +152,54 @@ export default function Navbar() {
 
       {/* hamburger menu */}
       {status === "authenticated" || status === "loading" ? (
-        <Drawer>
-          <DrawerTrigger className="md:hidden">
-            <div className="block md:hidden">
-              <Button variant={"outline"} className="flex md:hidden items-center justify-center w-10 h-10">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={3}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
-              </Button>
-            </div>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle className="text-center text-3xl">Menu</DrawerTitle>
-              <DrawerDescription>
-                <ul className="flex flex-col items-center justify-center gap-4 mt-6">
-                  <li className="w-[50%] text-center border border-border/90 rounded-full px-5 py-2">
-                    <Link href="/custom-links" className="font-medium">
-                      {translate.customLinks}
-                    </Link>
-                  </li>
-                  <li className="w-[50%] text-center border border-border/90 rounded-full px-5 py-2">
-                    <Link href="/manage-links" className="font-medium">
-                      {translate.manageLinks}
-                    </Link>
-                  </li>
-                  <li className="w-[50%] text-center border border-border/90 rounded-full bg-red-500 text-white">
-                    <Button variant={"ghost"} onClick={() => signOut()} className="font-medium">
-                      {translate.logout}
-                    </Button>
-                  </li>
-                </ul>
-              </DrawerDescription>
-            </DrawerHeader>
-          </DrawerContent>
-        </Drawer>
+        <>
+          <div className="flex md:hidden items-center space-x-2">
+            <LanguageToggle />
+            <ModeToggle />
+          </div>
+          <Drawer>
+            <DrawerTrigger className="md:hidden">
+              <div className="flex md:hidden space-x-2 items-center">
+                <Button variant={"outline"} className="flex md:hidden items-center justify-center w-10 h-10">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+                  </svg>
+                </Button>
+              </div>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle className="text-center text-3xl">Menu</DrawerTitle>
+                <DrawerDescription>
+                  <ul className="flex flex-col items-center justify-center gap-4 mt-6">
+                    <li className="w-[50%] text-center border border-border/90 rounded-full px-5 py-2">
+                      <Link href="/custom-links" className="font-medium">
+                        {translate.customLinks}
+                      </Link>
+                    </li>
+                    <li className="w-[50%] text-center border border-border/90 rounded-full px-5 py-2">
+                      <Link href="/manage-links" className="font-medium">
+                        {translate.manageLinks}
+                      </Link>
+                    </li>
+                    <li className="w-[50%] text-center border border-border/90 rounded-full bg-red-500 text-white">
+                      <Button variant={"ghost"} onClick={() => signOut()} className="font-medium">
+                        {translate.logout}
+                      </Button>
+                    </li>
+                  </ul>
+                </DrawerDescription>
+              </DrawerHeader>
+            </DrawerContent>
+          </Drawer>
+        </>
       ) : (
         <div className="md:hidden flex items-center space-x-2">
           <LanguageToggle />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/hooks/use-language";
@@ -12,18 +12,186 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Link, Clock, Plus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { toastsTranslations } from "@/languages/toasts";
+
+interface CustomLink {
+  _id: string;
+  originalLink: string;
+  customLink: string;
+  clicks: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function ManageLinks() {
+  const { status } = useSession();
   const { language } = useLanguage();
-  const translate = manageLinksTranslations[language];
   const [searchQuery, setSearchQuery] = useState("");
+  const [links, setLinks] = useState<CustomLink[]>([])
+  const [totalLinksCount, setTotalLinksCount] = useState(0);
+  const [totalClicksCount, setTotalClicksCount] = useState(0);
+  const [averageClicks, setAverageClicks] = useState(0);
+  const [lastCreation, setLastCreation] = useState("");
+  const router = useRouter();
+  const translate = manageLinksTranslations[language];
+  const tt = toastsTranslations[language];
 
-  // Example data for demonstration
-  const links = [
-    { id: 1, originalLink: "https://example.com/very-long-page-with-many-parameters?utm_source=email&utm_medium=newsletter", customLink: "linx.vercel.app/abc123", createdAt: "2023-10-01", clicks: 145 },
-    { id: 2, originalLink: "https://anotherexample.org/blog/top-10-tips-for-web-development", customLink: "linx.vercel.app/webdev", createdAt: "2023-10-05", clicks: 89 },
-    { id: 3, originalLink: "https://docs.google.com/spreadsheets/d/1234567890abcdef", customLink: "linx.vercel.app/gdoc", createdAt: "2023-10-10", clicks: 32 },
-  ];
+  const fetchAllLinks = async () => {
+    try {
+      const response = await fetch("/api/custom-links/get-all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        toast(tt.error, {
+          description: tt.failedToShortenLink,
+          duration: 3000,
+        });
+        return;
+      }
+
+      const data = await response.json();
+      const { customLinks } = data;
+
+      setLinks(customLinks);
+    } catch (error) {
+      console.log(error);
+      toast(tt.error, {
+        description: tt.failedToFetchLinks,
+        duration: 3000,
+      });
+    }
+  }
+
+  const fetchTotalLinksCount = async () => {
+    try {
+      const response = await fetch("/api/custom-links/count-links", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        toast(tt.error, {
+          description: tt.failedToFetchLinkCount,
+          duration: 3000,
+        });
+        return;
+      }
+
+      const data = await response.json();
+      const { count } = data;
+      setTotalLinksCount(count);
+    } catch (error) {
+      console.log(error);
+      toast(tt.error, {
+        description: tt.failedToFetchLinkCount,
+        duration: 3000,
+      });
+    }
+  }
+
+  const fetchTotalClicksCount = async () => {
+    try {
+      const response = await fetch("/api/custom-links/click-count", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        toast(tt.error, {
+          description: tt.failedToFetchClickCount,
+          duration: 3000,
+        });
+        return;
+      }
+
+      const data = await response.json();
+      const { totalClicks } = data;
+      console.log(data)
+      setTotalClicksCount(totalClicks);
+    } catch (error) {
+      console.log(error);
+      toast(tt.error, {
+        description: tt.failedToFetchClickCount,
+        duration: 3000,
+      });
+    }
+  }
+
+  const fetchAverageClicksCount = async () => {
+    try {
+      const response = await fetch("/api/custom-links/average-clicks", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        toast(tt.error, {
+          description: tt.failedToFetchAverageClickCount,
+          duration: 3000,
+        });
+        return;
+      }
+
+      const data = await response.json();
+      let { averageClicks } = data;
+
+      if (averageClicks === null || averageClicks === undefined) {
+        averageClicks = 0;
+      } else {
+        averageClicks = Math.round(averageClicks);
+      }
+      setAverageClicks(averageClicks);
+    } catch (error) {
+      console.log(error);
+      toast(tt.error, {
+        description: tt.failedToFetchAverageClickCount,
+        duration: 3000,
+      });
+    }
+  }
+
+  const lastCreatedLink = async () => {
+    try {
+
+    } catch (error) {
+      console.log(error);
+      toast(tt.error, {
+        description: tt.failedToFetchLastLinkCreated,
+        duration: 3000,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      toast(tt.error, {
+        description: tt.unauthorized,
+        duration: 3000,
+      });
+      router.push("/login")
+    }
+
+    if (status === "authenticated") {
+      fetchAllLinks();
+      fetchTotalLinksCount();
+      fetchTotalClicksCount();
+      fetchAverageClicksCount();
+      lastCreatedLink();
+    }
+  }, [status])
 
   return (
     <section className="flex flex-col mt-10 py-12 md:py-16 px-4 md:px-6 max-w-7xl mx-auto w-full">
@@ -37,12 +205,12 @@ export default function ManageLinks() {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { title: translate.totalLinks || "Total Links", value: "27", icon: <Link className="w-4 h-4" /> },
-          { title: translate.totalClicks || "Total Clicks", value: "1,246", icon: <BarChart2 className="w-4 h-4" /> },
-          { title: translate.averageClicks || "Avg. Clicks", value: "46", icon: <BarChart2 className="w-4 h-4" /> },
-          { title: translate.lastCreated || "Last Created", value: "2 hours ago", icon: <Clock className="w-4 h-4" /> }
+          { title: translate.totalLinks || "Total Links", value: totalLinksCount, icon: <Link className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> },
+          { title: translate.totalClicks || "Total Clicks", value: totalClicksCount, icon: <BarChart2 className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> },
+          { title: translate.averageClicks || "Avg. Clicks", value: averageClicks, icon: <BarChart2 className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> },
+          { title: translate.lastCreated || "Last Created", value: "2 hours ago", icon: <Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> }
         ].map((stat, index) => (
           <Card key={index} className="border shadow-sm">
             <CardContent className="flex items-center p-6">
@@ -74,7 +242,7 @@ export default function ManageLinks() {
             <Filter className="h-4 w-4" />
             <span>{translate.filter || "Filter"}</span>
           </Button>
-          <Button className="flex items-center gap-2">
+          <Button className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/custom-links")}>
             <Plus className="h-4 w-4" />
             <span>{translate.newLink || "New Link"}</span>
           </Button>
@@ -82,12 +250,12 @@ export default function ManageLinks() {
       </div>
 
       {/* Links Table */}
-      <Card className="border shadow-sm overflow-hidden mb-6">
+      <Card className="border shadow-sm overflow-hidden mb-6 px-3">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead className="w-12">#</TableHead>
+                <TableHead className="w-12">No.</TableHead>
                 <TableHead className="max-w-xs">{translate.originalLink || "Original Link"}</TableHead>
                 <TableHead>{translate.customLink || "Custom Link"}</TableHead>
                 <TableHead>{translate.createdAt || "Created At"}</TableHead>
@@ -96,9 +264,9 @@ export default function ManageLinks() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {links.map((link) => (
-                <TableRow key={link.id} className="hover:bg-muted/50">
-                  <TableCell className="font-medium">{link.id}</TableCell>
+              {links.map((link, index) => (
+                <TableRow key={link._id} className="hover:bg-muted/50">
+                  <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell className="max-w-xs truncate">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -112,9 +280,9 @@ export default function ManageLinks() {
                     </Tooltip>
                   </TableCell>
                   <TableCell className="font-medium">
-                    <a 
-                      href={`https://${link.customLink}`} 
-                      target="_blank" 
+                    <a
+                      href={`https://${link.customLink}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center hover:text-primary transition-colors"
                     >
@@ -217,7 +385,7 @@ export default function ManageLinks() {
           <p className="text-gray-500 dark:text-gray-400 mb-4 max-w-md">
             {translate.noLinksDescription || "Create your first shortened link to start tracking clicks and managing your URLs."}
           </p>
-          <Button>
+          <Button variant="default" className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/custom-links")}>
             {translate.createFirstLink || "Create Your First Link"}
           </Button>
         </Card>
