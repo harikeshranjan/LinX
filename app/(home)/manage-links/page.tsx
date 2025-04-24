@@ -165,7 +165,24 @@ export default function ManageLinks() {
 
   const lastCreatedLink = async () => {
     try {
+      const response = await fetch("/api/custom-links/last-creation", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
 
+      if (!response.ok) {
+        toast(tt.error, {
+          description: tt.failedToFetchLastLinkCreated,
+          duration: 3000,
+        });
+        return;
+      }
+
+      const data = await response.json();
+      const { lastCreated } = data;
+      setLastCreation(lastCreated);
     } catch (error) {
       console.log(error);
       toast(tt.error, {
@@ -210,7 +227,7 @@ export default function ManageLinks() {
           { title: translate.totalLinks || "Total Links", value: totalLinksCount, icon: <Link className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> },
           { title: translate.totalClicks || "Total Clicks", value: totalClicksCount, icon: <BarChart2 className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> },
           { title: translate.averageClicks || "Avg. Clicks", value: averageClicks, icon: <BarChart2 className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> },
-          { title: translate.lastCreated || "Last Created", value: "2 hours ago", icon: <Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> }
+          { title: translate.lastCreated || "Last Created", value: lastCreation, icon: <Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> }
         ].map((stat, index) => (
           <Card key={index} className="border shadow-sm">
             <CardContent className="flex items-center p-6">
