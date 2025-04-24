@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/hooks/use-language";
 import { manageLinksTranslations } from "@/languages/manage-links";
-import { Copy, Edit, QrCode, Trash2, Search, BarChart2, ExternalLink, Filter } from "lucide-react";
+import { Copy, Edit, QrCode, Trash2, Search, BarChart2, ExternalLink, Filter, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,9 +35,28 @@ export default function ManageLinks() {
   const [totalClicksCount, setTotalClicksCount] = useState(0);
   const [averageClicks, setAverageClicks] = useState(0);
   const [lastCreation, setLastCreation] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
   const translate = manageLinksTranslations[language];
   const tt = toastsTranslations[language];
+  const linksPerPage = 10;
+
+  const handleCopy = (link: string, id: string) => {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
+
+  const filteredLinks = links.filter((link) =>
+    link.originalLink.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    link.customLink.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const indexOfLastLink = currentPage * linksPerPage;
+  const indexOfFirstLink = indexOfLastLink - linksPerPage;
+  const currentLinks = filteredLinks.slice(indexOfFirstLink, indexOfLastLink);
 
   const fetchAllLinks = async () => {
     try {
@@ -281,7 +300,7 @@ export default function ManageLinks() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {links.map((link, index) => (
+              {currentLinks.map((link, index) => (
                 <TableRow key={link._id} className="hover:bg-muted/50">
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell className="max-w-xs truncate">
@@ -298,7 +317,7 @@ export default function ManageLinks() {
                   </TableCell>
                   <TableCell className="font-medium">
                     <a
-                      href={`https://${link.customLink}`}
+                      href={`/${link.customLink}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center hover:text-primary transition-colors"
@@ -318,8 +337,14 @@ export default function ManageLinks() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Copy className="h-4 w-4" />
+                            <Button
+                              key={link._id}
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 cursor-pointer"
+                              onClick={() => handleCopy(`https://linx.vercel.app/${link.customLink}`, link._id)}
+                            >
+                              {copiedId === link._id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -369,29 +394,8 @@ export default function ManageLinks() {
         </div>
       </Card>
 
-      {/* Pagination */}
-      <Pagination className="mt-4">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="#" />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#" isActive>1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">2</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">3</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext href="#" />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-
       {/* Empty State - Shown when no links are present */}
-      {links.length === 0 && (
+      {currentLinks.length === 0 && (
         <Card className="border-dashed border-2 bg-transparent flex flex-col items-center justify-center p-12 text-center">
           <div className="rounded-full p-3 bg-primary/10 text-primary mb-4">
             <Link className="h-6 w-6" />
@@ -407,6 +411,43 @@ export default function ManageLinks() {
           </Button>
         </Card>
       )}
+
+      {/* Pagination */}
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => currentPage > 1 && setCurrentPage(prev => prev - 1)}
+              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            />
+          </PaginationItem>
+
+          {Array.from({ length: Math.ceil(links.length / linksPerPage) }, (_, i) => (
+            <PaginationItem key={i}>
+              <PaginationLink
+                isActive={currentPage === i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() =>
+                currentPage < Math.ceil(links.length / linksPerPage) &&
+                setCurrentPage(prev => prev + 1)
+              }
+              className={
+                currentPage >= Math.ceil(links.length / linksPerPage)
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </section>
   );
 }
